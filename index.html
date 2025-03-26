@@ -3,53 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Vocabulary Learning</title>
+    <title>Vocab Master - Learn English Vocabulary</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>English Vocabulary Learning</h1>
+            <h1>Vocab Master</h1>
             <nav>
                 <ul>
                     <li><a href="#" class="active">Vocabulary</a></li>
-                    <li><a href="#">Grammar</a></li>
-                    <li><a href="#">Speaking</a></li>
+                    <li><a href="#">Groups</a></li>
+                    <li><a href="#">Settings</a></li>
                 </ul>
             </nav>
         </header>
 
-        <main>
-            <div class="vocabulary-section">
-                <div class="controls">
-                    <div class="group-by">
-                        <label for="groupBy">Group by:</label>
-                        <select id="groupBy">
-                            <option value="day">Day</option>
-                            <option value="week">Week</option>
-                            <option value="month">Month</option>
-                        </select>
-                    </div>
-                    <div class="sort-by">
-                        <label for="sortBy">Sort by:</label>
-                        <select id="sortBy">
-                            <option value="time">Time</option>
-                            <option value="alphabetical">A-Z</option>
-                        </select>
-                    </div>
+        <main class="vocabulary-section">
+            <div class="controls">
+                <div class="group-by">
+                    <label for="groupBy">Group by:</label>
+                    <select id="groupBy">
+                        <option value="day">Day</option>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select>
                 </div>
+                <div class="sort-by">
+                    <label for="sortBy">Sort by:</label>
+                    <select id="sortBy">
+                        <option value="time">Time (newest first)</option>
+                        <option value="alphabetical">Alphabetical (A-Z)</option>
+                    </select>
+                </div>
+            </div>
 
-                <div class="add-vocabulary">
-                    <input type="text" id="newWord" placeholder="Enter new word...">
-                    <button id="addWord">Add Word</button>
-                </div>
+            <div class="add-vocabulary">
+                <input type="text" id="newWord" placeholder="Enter a new word">
+                <button id="addWord">Add Word</button>
+            </div>
 
-                <div class="vocabulary-list" id="vocabularyList">
-                    <!-- Vocabulary items will be dynamically added here -->
-                </div>
+            <div id="vocabularyList" class="vocabulary-list">
+                <!-- Vocabulary items will be added here -->
             </div>
         </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html> 

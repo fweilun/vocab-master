@@ -1,234 +1,180 @@
-// Store vocabulary items in localStorage
-let vocabularyItems = JSON.parse(localStorage.getItem('vocabularyItems')) || [];
+document.addEventListener('DOMContentLoaded', () => {
+    const newWordInput = document.getElementById('newWord');
+    const addWordButton = document.getElementById('addWord');
+    const vocabularyList = document.getElementById('vocabularyList');
+    const groupBySelect = document.getElementById('groupBy');
+    const sortBySelect = document.getElementById('sortBy');
 
-// DOM Elements
-const newWordInput = document.getElementById('newWord');
-const addWordButton = document.getElementById('addWord');
-const vocabularyList = document.getElementById('vocabularyList');
-const groupBySelect = document.getElementById('groupBy');
-const sortBySelect = document.getElementById('sortBy');
+    // Load vocabulary from localStorage
+    let vocabulary = JSON.parse(localStorage.getItem('vocabulary')) || [];
 
-// Function to capitalize first letter
-function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-}
-
-// Function to add new word
-async function addNewWord() {
-    const word = capitalizeFirstLetter(newWordInput.value.trim());
-    
-    if (word) {
-        try {
-            // Show loading state
-            addWordButton.disabled = true;
-            addWordButton.textContent = 'Translating...';
-            
-            // Get translation from API
-            const response = await fetch('/translate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ word })
-            });
-            
-            const data = await response.json();
-            
-            if (data.error) {
-                throw new Error(data.error);
-            }
-            
-            const newItem = {
-                word: data.word,
-                meaning: data.meaning,
-                id: Date.now()
-            };
-            
-            vocabularyItems.push(newItem);
-            saveToLocalStorage();
-            displayVocabulary();
-            
-            // Clear input
-            newWordInput.value = '';
-        } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
-            // Reset button state
-            addWordButton.disabled = false;
-            addWordButton.textContent = 'Add Word';
-        }
-    }
-}
-
-// Function to delete word
-function deleteWord(id) {
-    vocabularyItems = vocabularyItems.filter(item => item.id !== id);
-    saveToLocalStorage();
-    displayVocabulary();
-}
-
-// Function to edit meaning
-function editMeaning(id, newMeaning) {
-    const item = vocabularyItems.find(item => item.id === id);
-    if (item) {
-        item.meaning = newMeaning;
-        saveToLocalStorage();
-        displayVocabulary();
-    }
-}
-
-// Function to start editing meaning
-function startEditingMeaning(meaningElement, id, currentMeaning) {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = currentMeaning;
-    input.className = 'meaning-input';
-    
-    const saveEdit = () => {
-        const newMeaning = input.value.trim();
-        if (newMeaning) {
-            editMeaning(id, newMeaning);
-        }
-        meaningElement.textContent = newMeaning || currentMeaning;
-        meaningElement.classList.remove('editing');
-        meaningElement.removeEventListener('blur', saveEdit);
+    // Function to save vocabulary to localStorage
+    const saveVocabulary = () => {
+        localStorage.setItem('vocabulary', JSON.stringify(vocabulary));
     };
-    
-    input.addEventListener('blur', saveEdit);
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            saveEdit();
+
+    // Function to add a new word
+    const addWord = async (word) => {
+        if (!word) return;
+
+        // Create new vocabulary item
+        const newItem = {
+            id: Date.now(),
+            word: word,
+            meaning: word, // For demo purposes, we'll just use the word itself
+            created_at: new Date().toISOString()
+        };
+
+        // Add to vocabulary array
+        vocabulary.push(newItem);
+        saveVocabulary();
+
+        // Clear input
+        newWordInput.value = '';
+
+        // Refresh display
+        displayVocabulary();
+    };
+
+    // Function to delete a word
+    const deleteWord = (id) => {
+        vocabulary = vocabulary.filter(item => item.id !== id);
+        saveVocabulary();
+        displayVocabulary();
+    };
+
+    // Function to edit a word
+    const editWord = (id, newMeaning) => {
+        const item = vocabulary.find(item => item.id === id);
+        if (item) {
+            item.meaning = newMeaning;
+            saveVocabulary();
+            displayVocabulary();
         }
-    });
-    
-    meaningElement.textContent = '';
-    meaningElement.appendChild(input);
-    meaningElement.classList.add('editing');
-    input.focus();
-}
+    };
 
-// Event listeners
-addWordButton.addEventListener('click', addNewWord);
-newWordInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        addNewWord();
-    }
-});
+    // Function to group vocabulary
+    const groupVocabulary = (items) => {
+        const groupBy = groupBySelect.value;
+        const groups = {};
 
-// Save to localStorage
-function saveToLocalStorage() {
-    localStorage.setItem('vocabularyItems', JSON.stringify(vocabularyItems));
-}
-
-// Format date
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-
-// Get group key based on selected grouping
-function getGroupKey(item, groupBy) {
-    const date = new Date(item.id);
-    switch (groupBy) {
-        case 'day':
-            return date.toLocaleDateString();
-        case 'week':
-            const weekStart = new Date(date);
-            weekStart.setDate(date.getDate() - date.getDay());
-            return `Week of ${weekStart.toLocaleDateString()}`;
-        case 'month':
-            return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        default:
-            return 'All Words';
-    }
-}
-
-// Sort items
-function sortItems(items, sortBy) {
-    return [...items].sort((a, b) => {
-        if (sortBy === 'time') {
-            return b.id - a.id;
-        } else {
-            return a.word.localeCompare(b.word);
-        }
-    });
-}
-
-// Display vocabulary items
-function displayVocabulary() {
-    const groupBy = groupBySelect.value;
-    const sortBy = sortBySelect.value;
-    
-    // Clear current display
-    vocabularyList.innerHTML = '';
-    
-    // Sort items
-    const sortedItems = sortItems(vocabularyItems, sortBy);
-    
-    // Group items
-    const groupedItems = {};
-    sortedItems.forEach(item => {
-        const groupKey = getGroupKey(item, groupBy);
-        if (!groupedItems[groupKey]) {
-            groupedItems[groupKey] = [];
-        }
-        groupedItems[groupKey].push(item);
-    });
-    
-    // Display grouped items
-    Object.entries(groupedItems).forEach(([groupKey, items]) => {
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'group-header';
-        groupHeader.textContent = groupKey;
-        vocabularyList.appendChild(groupHeader);
-        
         items.forEach(item => {
-            const itemElement = document.createElement('div');
-            itemElement.className = 'vocabulary-item';
-            
-            const contentWrapper = document.createElement('div');
-            contentWrapper.className = 'content-wrapper';
-            
-            const wordElement = document.createElement('div');
-            wordElement.className = 'word';
-            wordElement.textContent = item.word;
-            
-            const meaningElement = document.createElement('div');
-            meaningElement.className = 'meaning';
-            meaningElement.textContent = item.meaning;
-            meaningElement.style.display = 'none';
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'delete-button';
-            deleteButton.textContent = '×';
-            deleteButton.onclick = () => deleteWord(item.id);
-            
-            // Add click event to toggle meaning
-            wordElement.onclick = () => {
-                meaningElement.style.display = meaningElement.style.display === 'none' ? 'block' : 'none';
-            };
-            
-            // Add click event to edit meaning
-            meaningElement.onclick = () => {
-                startEditingMeaning(meaningElement, item.id, item.meaning);
-            };
-            
-            contentWrapper.appendChild(wordElement);
-            contentWrapper.appendChild(meaningElement);
-            itemElement.appendChild(contentWrapper);
-            itemElement.appendChild(deleteButton);
-            vocabularyList.appendChild(itemElement);
+            const date = new Date(item.created_at);
+            let key;
+
+            switch (groupBy) {
+                case 'day':
+                    key = date.toLocaleDateString();
+                    break;
+                case 'week':
+                    const weekStart = new Date(date);
+                    weekStart.setDate(date.getDate() - date.getDay());
+                    key = weekStart.toLocaleDateString();
+                    break;
+                case 'month':
+                    key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+                    break;
+            }
+
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(item);
         });
+
+        return groups;
+    };
+
+    // Function to sort vocabulary
+    const sortVocabulary = (items) => {
+        const sortBy = sortBySelect.value;
+        return [...items].sort((a, b) => {
+            if (sortBy === 'time') {
+                return new Date(b.created_at) - new Date(a.created_at);
+            } else {
+                return a.word.localeCompare(b.word);
+            }
+        });
+    };
+
+    // Function to display vocabulary
+    const displayVocabulary = () => {
+        const sortedVocabulary = sortVocabulary(vocabulary);
+        const groupedVocabulary = groupVocabulary(sortedVocabulary);
+
+        vocabularyList.innerHTML = '';
+
+        Object.entries(groupedVocabulary).forEach(([group, items]) => {
+            const groupHeader = document.createElement('div');
+            groupHeader.className = 'group-header';
+            groupHeader.textContent = group;
+            vocabularyList.appendChild(groupHeader);
+
+            items.forEach(item => {
+                const vocabularyItem = document.createElement('div');
+                vocabularyItem.className = 'vocabulary-item';
+                vocabularyItem.innerHTML = `
+                    <div>
+                        <div class="word">${item.word}</div>
+                        <div class="meaning" data-id="${item.id}">${item.meaning}</div>
+                    </div>
+                    <button class="delete-button" data-id="${item.id}">×</button>
+                `;
+
+                // Add click event for editing meaning
+                const meaningElement = vocabularyItem.querySelector('.meaning');
+                meaningElement.addEventListener('click', () => {
+                    const currentMeaning = meaningElement.textContent;
+                    const input = document.createElement('input');
+                    input.value = currentMeaning;
+                    input.className = 'edit-input';
+                    meaningElement.textContent = '';
+                    meaningElement.appendChild(input);
+                    input.focus();
+
+                    input.addEventListener('blur', () => {
+                        const newMeaning = input.value.trim();
+                        if (newMeaning && newMeaning !== currentMeaning) {
+                            editWord(item.id, newMeaning);
+                        } else {
+                            meaningElement.textContent = currentMeaning;
+                        }
+                    });
+
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            input.blur();
+                        }
+                    });
+                });
+
+                // Add click event for delete button
+                const deleteButton = vocabularyItem.querySelector('.delete-button');
+                deleteButton.addEventListener('click', () => {
+                    deleteWord(item.id);
+                });
+
+                vocabularyList.appendChild(vocabularyItem);
+            });
+        });
+    };
+
+    // Event listeners
+    addWordButton.addEventListener('click', () => {
+        const word = newWordInput.value.trim();
+        addWord(word);
     });
-}
 
-// Event listeners for controls
-groupBySelect.addEventListener('change', displayVocabulary);
-sortBySelect.addEventListener('change', displayVocabulary);
+    newWordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const word = newWordInput.value.trim();
+            addWord(word);
+        }
+    });
 
-// Initial display
-displayVocabulary(); 
+    groupBySelect.addEventListener('change', displayVocabulary);
+    sortBySelect.addEventListener('change', displayVocabulary);
+
+    // Initial display
+    displayVocabulary();
+}); 
