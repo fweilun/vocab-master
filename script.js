@@ -13,12 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('vocabulary', JSON.stringify(vocabulary));
     };
 
-    // Function to translate text using Google Translate API
+    // Function to translate text using MyMemory Translation API
     const translateText = async (text) => {
         try {
-            const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(text)}`);
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|zh-TW`);
             const data = await response.json();
-            return data[0][0][0]; // Get the first translation
+            if (data.responseStatus === 200) {
+                return data.responseData.translatedText;
+            } else {
+                throw new Error('Translation failed');
+            }
         } catch (error) {
             console.error('Translation error:', error);
             return text; // Return original text if translation fails
