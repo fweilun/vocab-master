@@ -1,70 +1,65 @@
 # English Vocabulary Learning App
 
-A web application for learning and organizing English vocabulary words. This application helps users track their vocabulary learning progress by allowing them to add new words, automatically translating them to Vietnamese, and organizing them by time periods.
+A web application for learning English vocabulary with features like translation, grouping, and sorting.
 
 ## Features
 
-- Add new vocabulary words with automatic translation to Vietnamese
-- Group words by:
-  - Day
-  - Week
-  - Month
-- Sort words by:
-  - Time (newest first)
-  - Alphabetical order (A-Z)
-- Persistent storage using localStorage
-- Modern and responsive design
+- Add and manage English vocabulary words
+- Automatic translation from English to Traditional Chinese
+- Group vocabulary by creation date
+- Sort vocabulary by word or creation date
+- Edit and delete vocabulary items
+- Responsive design for mobile and desktop
 
-## Prerequisites
+## Tech Stack
 
-- Python 3.7 or higher
-- pip (Python package manager)
+- Frontend:
+  - HTML5
+  - CSS3
+  - JavaScript (Vanilla)
+  - LocalStorage for data persistence
+
+- Backend:
+  - Python
+  - Flask
+  - Google Translate API
 
 ## Setup
 
-1. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/english-voc.git
+cd english-voc
+```
 
-2. Start the Python backend server:
-   ```bash
-   python server.py
-   ```
+2. Install Python dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-3. Open `index.html` in a web browser
+3. Run the server:
+```bash
+python server.py
+```
 
-## How to Use
+4. Open your browser and navigate to `http://localhost:5000`
 
-1. Enter an English word in the input field
-2. Click the "Add Word" button
-3. The word will be automatically translated to Vietnamese
-4. Use the dropdown menus to:
-   - Group words by different time periods
-   - Sort words by time or alphabetically
+## Project Structure
 
-## Technical Details
+```
+english-voc/
+├── server.py          # Flask server implementation
+├── index.html         # Main HTML file
+├── styles.css         # CSS styles
+├── script.js          # Frontend JavaScript
+├── requirements.txt   # Python dependencies
+└── README.md          # Project documentation
+```
 
-The application is built using:
-- HTML5 for structure
-- CSS3 for styling
-- JavaScript (ES6+) for functionality
-- Python (Flask) for backend translation
-- googletrans library for translation
-- localStorage for data persistence
+## Contributing
 
-## File Structure
+Feel free to submit issues and enhancement requests!
 
-- `index.html` - Main HTML file
-- `styles.css` - CSS styles
-- `script.js` - JavaScript functionality
-- `server.py` - Python backend server
-- `requirements.txt` - Python dependencies
-- `README.md` - This documentation file
+## License
 
-## Browser Support
-
-The application works on all modern browsers that support:
-- ES6+ JavaScript
-- localStorage
-- CSS3 Flexbox 
+This project is licensed under the MIT License - see the LICENSE file for details. 
