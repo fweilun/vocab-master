@@ -189,4 +189,33 @@ button:hover {
     border-radius: 4px;
     font-weight: bold;
     color: #2c3e50;
+}
+
+.sync-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.sync-controls button {
+    padding: 8px 16px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.sync-controls button:hover {
+    background-color: #27ae60;
+}
+
+#importBtn {
+    background-color: #3498db;
+}
+
+#importBtn:hover {
+    background-color: #2980b9;
 } 

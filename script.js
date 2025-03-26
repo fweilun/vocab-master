@@ -13,6 +13,40 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('vocabulary', JSON.stringify(vocabulary));
     };
 
+    // Function to export vocabulary
+    const exportVocabulary = () => {
+        const dataStr = JSON.stringify(vocabulary);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const exportFileDefaultName = 'vocabulary.json';
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    };
+
+    // Function to import vocabulary
+    const importVocabulary = (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (Array.isArray(importedData)) {
+                    vocabulary = importedData;
+                    saveVocabulary();
+                    displayVocabulary();
+                    alert('Vocabulary imported successfully!');
+                } else {
+                    throw new Error('Invalid data format');
+                }
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Error importing vocabulary. Please check the file format.');
+            }
+        };
+        reader.readAsText(file);
+    };
+
     // Function to translate text using MyMemory Translation API
     const translateText = async (text) => {
         try {
@@ -212,6 +246,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     groupBySelect.addEventListener('change', displayVocabulary);
     sortBySelect.addEventListener('change', displayVocabulary);
+
+    // Add import/export buttons to the header
+    const header = document.querySelector('header');
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'sync-controls';
+    controlsDiv.innerHTML = `
+        <button id="exportBtn">Export</button>
+        <input type="file" id="importInput" accept=".json" style="display: none;">
+        <button id="importBtn">Import</button>
+    `;
+    header.appendChild(controlsDiv);
+
+    // Add event listeners for import/export
+    document.getElementById('exportBtn').addEventListener('click', exportVocabulary);
+    document.getElementById('importBtn').addEventListener('click', () => {
+        document.getElementById('importInput').click();
+    });
+    document.getElementById('importInput').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            importVocabulary(e.target.files[0]);
+        }
+    });
 
     // Initial display
     displayVocabulary();
